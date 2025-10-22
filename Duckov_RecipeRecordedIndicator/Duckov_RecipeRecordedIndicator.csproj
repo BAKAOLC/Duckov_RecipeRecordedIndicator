@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<PlatformTarget>x64</PlatformTarget>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<DuckovPath>E:\SteamLibrary\steamapps\common\Escape from Duckov</DuckovPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\TeamSoda.*"/>
+		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\ItemStatsSystem.dll"/>
+		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\Unity*"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Lib.Harmony" Version="2.4.1"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="info.ini">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	</PropertyGroup>
+
+</Project>
