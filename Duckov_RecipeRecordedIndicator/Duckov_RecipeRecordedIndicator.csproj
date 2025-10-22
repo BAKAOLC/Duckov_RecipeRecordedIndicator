@@ -12,13 +12,21 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\TeamSoda.*"/>
-		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\ItemStatsSystem.dll"/>
-		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\Unity*"/>
+		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\TeamSoda.*">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\ItemStatsSystem.dll">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="$(DuckovPath)\Duckov_Data\Managed\Unity*">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Lib.Harmony" Version="2.4.1"/>
+		<PackageReference Include="Lib.Harmony" Version="2.4.1">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
