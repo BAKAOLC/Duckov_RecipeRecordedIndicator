@@ -15,6 +15,8 @@ namespace Duckov_RecipeRecordedIndicator
         private static Tag? KeyItemTag;
 
         [HarmonyPatch(typeof(ItemDisplay), "Setup")]
+        [HarmonyAfter("KeycardRecordedIndicator")]
+        [HarmonyPriority(Priority.Low)]
         [HarmonyPostfix]
         // ReSharper disable once InconsistentNaming
         private static void Setup_PostFix(ItemDisplay __instance, Item target)
@@ -31,6 +33,8 @@ namespace Duckov_RecipeRecordedIndicator
         }
 
         [HarmonyPatch(typeof(ItemDisplay), "Refresh")]
+        [HarmonyAfter("KeycardRecordedIndicator")]
+        [HarmonyPriority(Priority.Low)]
         [HarmonyPostfix]
         // ReSharper disable once InconsistentNaming
         private static void Refresh_PostFix(ItemDisplay __instance)

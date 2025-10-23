@@ -9,7 +9,9 @@ namespace Duckov_RecipeRecordedIndicator
 {
     public static class RecordedIndicatorUI
     {
-        public const string IndicatorObjectName = "RecordedIndicator";
+        public const string IndicatorObjectName = "CheckedRecordedIndicator";
+        public const string OtherIndicatorObjectName = "RecordedIndicator";
+
         public static readonly Vector2 IndicatorAnchorPosition = new(-5f, -5f);
         public static readonly Vector2 IndicatorSize = new(28f, 28f);
         public static readonly Color RecordedIndicatorBgColor = new(0.2f, 0.8f, 0.2f, 1f);
@@ -23,6 +25,13 @@ namespace Duckov_RecipeRecordedIndicator
 
             try
             {
+                if (itemDisplay.transform.Find(OtherIndicatorObjectName) != null)
+                {
+                    ModLogger.LogWarning(
+                        $"ItemDisplay {itemDisplay.name} has another Recorded Indicator present. Skipping addition of new indicator.");
+                    return;
+                }
+
                 if (itemDisplay.transform.Find(IndicatorObjectName) != null)
                 {
                     IndicatedDisplays.Add(itemDisplay);
