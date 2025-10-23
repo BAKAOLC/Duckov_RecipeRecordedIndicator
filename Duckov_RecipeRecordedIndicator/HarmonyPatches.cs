@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
+using Duckov.MasterKeys;
 using Duckov.UI;
+using Duckov.Utilities;
 using HarmonyLib;
 using ItemStatsSystem;
 
@@ -9,6 +12,8 @@ namespace Duckov_RecipeRecordedIndicator
     [HarmonyPatch]
     public static class HarmonyPatches
     {
+        private static Tag? KeyItemTag;
+
         [HarmonyPatch(typeof(ItemDisplay), "Setup")]
         [HarmonyPostfix]
         // ReSharper disable once InconsistentNaming
@@ -46,7 +51,7 @@ namespace Duckov_RecipeRecordedIndicator
             try
             {
                 if (instance == null) return;
-                if (target == null || target.NeedInspection || !IsRecipeItemAndRecord(target))
+                if (target == null || target.NeedInspection || !CheckShowIndicator(target))
                 {
                     RecordedIndicatorUI.RemoveIndicator(instance);
                     return;
@@ -58,6 +63,26 @@ namespace Duckov_RecipeRecordedIndicator
             {
                 ModLogger.LogError($"Error updating ItemDisplay {instance.name}: {ex}");
             }
+        }
+
+        private static bool CheckShowIndicator(Item item)
+        {
+            return IsRecipeItemAndRecord(item) || IsKeyItemAndRecord(item);
+        }
+
+        private static bool IsKeyItemAndRecord(Item item)
+        {
+            if (item == null) return false;
+
+            KeyItemTag ??= GetTagByName("Key");
+            if (KeyItemTag == null) return false;
+
+            return item.Tags.Contains(KeyItemTag) && IsKeyRecorded(item.TypeID);
+        }
+
+        private static bool IsKeyRecorded(int typeID)
+        {
+            return MasterKeysManager.IsActive(typeID);
         }
 
         private static bool IsRecipeItemAndRecord(Item item)
@@ -81,6 +106,11 @@ namespace Duckov_RecipeRecordedIndicator
 
             var result = isFormulaUnlockedMethod.Invoke(null, [formulaID]);
             return result is true;
+        }
+
+        private static Tag? GetTagByName(string tagName)
+        {
+            return GameplayDataSettings.Tags.AllTags.FirstOrDefault(t => t.name == tagName);
         }
     }
 }
