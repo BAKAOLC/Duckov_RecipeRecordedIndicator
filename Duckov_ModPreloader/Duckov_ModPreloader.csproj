@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<AssemblyName>Duckov_RecipeRecordedIndicator_Assembly</AssemblyName>
+		<AssemblyName>Duckov_RecipeRecordedIndicator</AssemblyName>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
@@ -25,13 +25,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Lib.Harmony" Version="2.4.1">
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Duckov_ModPreloader\Duckov_ModPreloader.csproj"/>
+		<None Update="info.ini">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<PropertyGroup>

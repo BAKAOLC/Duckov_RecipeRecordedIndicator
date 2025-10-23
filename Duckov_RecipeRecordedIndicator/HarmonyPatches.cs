@@ -12,7 +12,7 @@ namespace Duckov_RecipeRecordedIndicator
     [HarmonyPatch]
     public static class HarmonyPatches
     {
-        private static Tag? KeyItemTag;
+        private static Tag? _keyItemTag;
 
         [HarmonyPatch(typeof(ItemDisplay), "Setup")]
         [HarmonyAfter("KeycardRecordedIndicator")]
@@ -78,10 +78,10 @@ namespace Duckov_RecipeRecordedIndicator
         {
             if (item == null) return false;
 
-            KeyItemTag ??= GetTagByName("Key");
-            if (KeyItemTag == null) return false;
+            _keyItemTag ??= GetTagByName("Key");
+            if (_keyItemTag == null) return false;
 
-            return item.Tags.Contains(KeyItemTag) && IsKeyRecorded(item.TypeID);
+            return item.Tags.Contains(_keyItemTag) && IsKeyRecorded(item.TypeID);
         }
 
         private static bool IsKeyRecorded(int typeID)

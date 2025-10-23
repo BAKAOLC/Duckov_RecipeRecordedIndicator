@@ -6,7 +6,7 @@ namespace Duckov_RecipeRecordedIndicator
 {
     public static class ModLogger
     {
-        public const string ModTag = "[Duckov Recorded Indicator]";
+        public const string ModTag = $"[{Constant.ModName}]";
 
         public static void Log(object message)
         {
