@@ -17,7 +17,7 @@ namespace Duckov_RecipeRecordedIndicator
 
             if (!LoadHarmony())
             {
-                ModLogger.LogError("Failed to load Harmony.");
+                ModLogger.LogError("Failed to load Harmony. Waiting for mod activation to retry.");
                 RegisterModActivatedEvents();
                 return;
             }
@@ -106,6 +106,7 @@ namespace Duckov_RecipeRecordedIndicator
 
         private static void OnModActivated(ModInfo modInfo, Duckov.Modding.ModBehaviour modBehaviour)
         {
+            if (modBehaviour.GetType().Assembly == typeof(HarmonyLoader).Assembly) return;
             ModLogger.Log($"Mod Activated: {modInfo.name}. Attempting to initialize Harmony again.");
 
             if (!LoadHarmony()) return;
