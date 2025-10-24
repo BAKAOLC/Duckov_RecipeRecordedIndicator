@@ -12,8 +12,11 @@ namespace Duckov_RecipeRecordedIndicator
         public const string IndicatorObjectName = "CheckedRecordedIndicator";
         public const string OtherIndicatorObjectName = "RecordedIndicator";
 
-        public static readonly Vector2 IndicatorAnchorPosition = new(-5f, -5f);
         public static readonly Vector2 IndicatorSize = new(28f, 28f);
+        public static readonly Vector2 IndicatorAnchorPosition = new(5f, -5f);
+        public static readonly Vector2 IndicatorAnchorMin = new(0f, 1f);
+        public static readonly Vector2 IndicatorAnchorMax = new(0f, 1f);
+        public static readonly Vector2 IndicatorPivot = new(0f, 1f);
         public static readonly Color RecordedIndicatorBgColor = new(0.2f, 0.8f, 0.2f, 1f);
         public static readonly Color RecordedIndicatorTextColor = new(1f, 1f, 1f, 1f);
 
@@ -132,9 +135,9 @@ namespace Duckov_RecipeRecordedIndicator
                 return null;
             }
 
-            rectTransform.anchorMin = new(1f, 1f);
-            rectTransform.anchorMax = new(1f, 1f);
-            rectTransform.pivot = new(1f, 1f);
+            rectTransform.anchorMin = IndicatorAnchorMin;
+            rectTransform.anchorMax = IndicatorAnchorMax;
+            rectTransform.pivot = IndicatorPivot;
             rectTransform.anchoredPosition = IndicatorAnchorPosition;
             rectTransform.sizeDelta = IndicatorSize;
 
