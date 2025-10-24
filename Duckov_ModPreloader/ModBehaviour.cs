@@ -1,9 +1,14 @@
-﻿namespace Duckov_RecipeRecordedIndicator
+﻿using System;
+
+namespace Duckov_RecipeRecordedIndicator
 {
     public class ModBehaviour : Duckov.Modding.ModBehaviour
     {
+        public static ModBehaviour? Instance { get; private set; }
+
         private void Awake()
         {
+            Instance = this;
             ModLogger.Log($"{Constant.ModName} Loaded");
         }
 
@@ -15,6 +20,8 @@
 
         private void OnDisable()
         {
+            OnModDisabled?.Invoke();
+
             ModLoader.Uninitialize();
             HarmonyLoader.Uninitialize();
         }
@@ -23,6 +30,10 @@
         {
             ModLoader.Uninitialize();
             HarmonyLoader.Uninitialize();
+
+            Instance = null;
         }
+
+        public event Action? OnModDisabled;
     }
 }

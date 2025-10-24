@@ -13,10 +13,17 @@ namespace Duckov_RecipeRecordedIndicator
         public const string OtherIndicatorObjectName = "RecordedIndicator";
 
         public static readonly Vector2 IndicatorSize = new(28f, 28f);
-        public static readonly Vector2 IndicatorAnchorPosition = new(5f, -5f);
-        public static readonly Vector2 IndicatorAnchorMin = new(0f, 1f);
-        public static readonly Vector2 IndicatorAnchorMax = new(0f, 1f);
-        public static readonly Vector2 IndicatorPivot = new(0f, 1f);
+
+        public static readonly Vector2 IndicatorAnchorPositionOnLeft = new(5f, -5f);
+        public static readonly Vector2 IndicatorAnchorMinOnLeft = new(0f, 1f);
+        public static readonly Vector2 IndicatorAnchorMaxOnLeft = new(0f, 1f);
+        public static readonly Vector2 IndicatorPivotOnLeft = new(0f, 1f);
+
+        public static readonly Vector2 IndicatorAnchorPositionOnRight = new(-5f, -5f);
+        public static readonly Vector2 IndicatorAnchorMinOnRight = new(1f, 1f);
+        public static readonly Vector2 IndicatorAnchorMaxOnRight = new(1f, 1f);
+        public static readonly Vector2 IndicatorPivotOnRight = new(1f, 1f);
+
         public static readonly Color RecordedIndicatorBgColor = new(0.2f, 0.8f, 0.2f, 1f);
         public static readonly Color RecordedIndicatorTextColor = new(1f, 1f, 1f, 1f);
 
@@ -135,10 +142,25 @@ namespace Duckov_RecipeRecordedIndicator
                 return null;
             }
 
-            rectTransform.anchorMin = IndicatorAnchorMin;
-            rectTransform.anchorMax = IndicatorAnchorMax;
-            rectTransform.pivot = IndicatorPivot;
-            rectTransform.anchoredPosition = IndicatorAnchorPosition;
+            ModConfig.GetConfigValue<bool>("ShowIndicatorOnLeft", out var showOnLeft);
+
+            ModLogger.Log($"Creating Recorded Indicator on {(showOnLeft ? "Left" : "Right")}");
+
+            if (showOnLeft)
+            {
+                rectTransform.anchorMin = IndicatorAnchorMinOnLeft;
+                rectTransform.anchorMax = IndicatorAnchorMaxOnLeft;
+                rectTransform.pivot = IndicatorPivotOnLeft;
+                rectTransform.anchoredPosition = IndicatorAnchorPositionOnLeft;
+            }
+            else
+            {
+                rectTransform.anchorMin = IndicatorAnchorMinOnRight;
+                rectTransform.anchorMax = IndicatorAnchorMaxOnRight;
+                rectTransform.pivot = IndicatorPivotOnRight;
+                rectTransform.anchoredPosition = IndicatorAnchorPositionOnRight;
+            }
+
             rectTransform.sizeDelta = IndicatorSize;
 
             return indicatorObject;
