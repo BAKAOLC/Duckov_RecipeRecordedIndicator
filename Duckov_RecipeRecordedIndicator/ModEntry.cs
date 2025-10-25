@@ -9,6 +9,7 @@
 
         public static void Uninitialize()
         {
+            StatusRefreshManager.DestroyInstance();
             ModConfig.Uninitialize();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Duckov.MasterKeys;
@@ -13,6 +14,8 @@ namespace Duckov_RecipeRecordedIndicator
     public static class HarmonyPatches
     {
         private static Tag? _keyItemTag;
+
+        private static readonly Dictionary<ItemDisplay, Action> _refreshActions = [];
 
         [HarmonyPatch(typeof(ItemDisplay), "Setup")]
         [HarmonyAfter("KeycardRecordedIndicator")]
@@ -48,6 +51,49 @@ namespace Duckov_RecipeRecordedIndicator
             {
                 ModLogger.LogError($"Error in PostFix for ItemDisplay.Refresh in {__instance.name}: {ex}");
             }
+        }
+
+        [HarmonyPatch(typeof(ItemDisplay), "OnEnable")]
+        [HarmonyPostfix]
+        // ReSharper disable once InconsistentNaming
+        private static void OnEnable_PostFix(ItemDisplay __instance)
+        {
+            if (__instance == null) return;
+            if (_refreshActions.ContainsKey(__instance)) return;
+
+            StatusRefreshManager.Instance.OnTriggerRefresh += OnTriggerRefresh;
+            _refreshActions.Add(__instance, OnTriggerRefresh);
+
+            return;
+
+            void OnTriggerRefresh()
+            {
+                UpdateItemDisplay(__instance, __instance.Target);
+            }
+        }
+
+        [HarmonyPatch(typeof(ItemDisplay), "OnDisable")]
+        [HarmonyPostfix]
+        // ReSharper disable once InconsistentNaming
+        private static void OnDisable_PostFix(ItemDisplay __instance)
+        {
+            if (__instance == null) return;
+            if (!_refreshActions.TryGetValue(__instance, out var refreshAction)) return;
+
+            StatusRefreshManager.Instance.OnTriggerRefresh -= refreshAction;
+            _refreshActions.Remove(__instance);
+        }
+
+        [HarmonyPatch(typeof(ItemDisplay), "OnDestroy")]
+        [HarmonyPostfix]
+        // ReSharper disable once InconsistentNaming
+        private static void OnDestroy_PostFix(ItemDisplay __instance)
+        {
+            if (__instance == null) return;
+            if (!_refreshActions.TryGetValue(__instance, out var refreshAction)) return;
+
+            StatusRefreshManager.Instance.OnTriggerRefresh -= refreshAction;
+            _refreshActions.Remove(__instance);
         }
 
         private static void UpdateItemDisplay(ItemDisplay instance, Item target)
