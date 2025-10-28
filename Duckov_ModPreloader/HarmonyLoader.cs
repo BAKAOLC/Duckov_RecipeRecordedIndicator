@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using Duckov.Modding;
 
@@ -123,8 +125,18 @@ namespace Duckov_RecipeRecordedIndicator
                 var harmonyType = Type.GetType("HarmonyLib.Harmony, 0Harmony");
                 if (harmonyType == null)
                 {
-                    ModLogger.LogError("HarmonyLib not found. Please ensure Harmony is installed.");
-                    return false;
+                    if (!FindHarmonyLibLocally(out var harmonyAssembly))
+                    {
+                        ModLogger.LogError("HarmonyLib not found. Please ensure Harmony is installed.");
+                        return false;
+                    }
+
+                    harmonyType = harmonyAssembly.GetType("HarmonyLib.Harmony");
+                    if (harmonyType == null)
+                    {
+                        ModLogger.LogError("HarmonyLib.Harmony type not found in Harmony assembly.");
+                        return false;
+                    }
                 }
 
                 _harmonyInstance = Activator.CreateInstance(harmonyType, Constant.HarmonyId);
@@ -133,6 +145,41 @@ namespace Duckov_RecipeRecordedIndicator
             catch (Exception ex)
             {
                 ModLogger.LogError($"Error initializing Harmony: {ex}");
+            }
+
+            return false;
+        }
+
+        private static bool FindHarmonyLibLocally([NotNullWhen(true)] out Assembly? harmonyAssembly)
+        {
+            harmonyAssembly = null;
+            try
+            {
+                var path = Path.GetDirectoryName(typeof(HarmonyLoader).Assembly.Location);
+                if (path == null) return false;
+
+                var targetAssemblyFile = Path.Combine(path, "0Harmony.dll");
+                if (!File.Exists(targetAssemblyFile)) return false;
+
+                try
+                {
+                    ModLogger.Log($"Loading Assembly from: {targetAssemblyFile}");
+
+                    var bytes = File.ReadAllBytes(targetAssemblyFile);
+                    var targetAssembly = Assembly.Load(bytes);
+                    harmonyAssembly = targetAssembly;
+
+                    ModLogger.Log("HarmonyLib Assembly Loaded Successfully");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    ModLogger.LogError($"Error loading HarmonyLib assembly: {ex}");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.LogError($"Error finding HarmonyLib assembly: {ex}");
             }
 
             return false;
