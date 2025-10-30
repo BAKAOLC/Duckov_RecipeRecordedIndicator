@@ -87,23 +87,15 @@ namespace Duckov_RecipeRecordedIndicator
 
             return false;
         }
-
-        private static GameObject? CreateIndicator_Main(ItemDisplay itemDisplay)
+        
+        private static void SetIndicatorPosition(GameObject indicatorObject, bool showOnLeft)
         {
-            var indicatorObject = new GameObject(IndicatorObjectName);
-            indicatorObject.transform.SetParent(itemDisplay.transform, false);
-            indicatorObject.transform.localScale = Vector3.one;
-            var rectTransform = indicatorObject.AddComponent<RectTransform>();
+            var rectTransform = indicatorObject.GetComponent<RectTransform>();
             if (rectTransform == null)
             {
-                ModLogger.LogError("Failed to add RectTransform to Indicator");
-                Object.Destroy(indicatorObject);
-                return null;
+                ModLogger.LogError("RectTransform is null when setting indicator position");
+                return;
             }
-
-            ModConfig.GetConfigValue<bool>("ShowIndicatorOnLeft", out var showOnLeft);
-
-            ModLogger.Log($"Creating Recorded Indicator on {(showOnLeft ? "Left" : "Right")}");
 
             if (showOnLeft)
             {
@@ -119,8 +111,25 @@ namespace Duckov_RecipeRecordedIndicator
                 rectTransform.pivot = IndicatorPivotOnRight;
                 rectTransform.anchoredPosition = IndicatorAnchorPositionOnRight;
             }
+        }
+
+        private static GameObject? CreateIndicator_Main(ItemDisplay itemDisplay)
+        {
+            var indicatorObject = new GameObject(IndicatorObjectName);
+            indicatorObject.transform.SetParent(itemDisplay.transform, false);
+            indicatorObject.transform.localScale = Vector3.one;
+            var rectTransform = indicatorObject.AddComponent<RectTransform>();
+            if (rectTransform == null)
+            {
+                ModLogger.LogError("Failed to add RectTransform to Indicator");
+                Object.Destroy(indicatorObject);
+                return null;
+            }
 
             rectTransform.sizeDelta = IndicatorSize;
+
+            ModConfig.GetConfigValue<bool>("ShowIndicatorOnLeft", out var showOnLeft);
+            SetIndicatorPosition(indicatorObject, showOnLeft);
 
             return indicatorObject;
         }
