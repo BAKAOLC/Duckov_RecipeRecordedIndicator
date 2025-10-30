@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Duckov.MasterKeys;
 using Duckov.UI;
 using HarmonyLib;
 using ItemStatsSystem;
@@ -33,13 +29,9 @@ namespace Duckov_RecipeRecordedIndicator
             try
             {
                 if (instance == null) return;
-                if (target == null || target.NeedInspection || !target.IsRegistered())
-                {
-                    RecordedIndicatorUI.RemoveIndicator(instance);
-                    return;
-                }
 
-                RecordedIndicatorUI.AddIndicator(instance);
+                var showIndicator = target != null && !target.NeedInspection && target.IsRegistered();
+                RecordedIndicatorUI.AddOrUpdateIndicator(instance, showIndicator);
             }
             catch (Exception ex)
             {

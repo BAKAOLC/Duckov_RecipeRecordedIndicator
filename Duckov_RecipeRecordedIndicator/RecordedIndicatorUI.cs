@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Duckov.UI;
 using TMPro;
 using UnityEngine;
@@ -10,7 +9,6 @@ namespace Duckov_RecipeRecordedIndicator
     public static class RecordedIndicatorUI
     {
         public const string IndicatorObjectName = "CheckedRecordedIndicator";
-        public const string OtherIndicatorObjectName = "RecordedIndicator";
 
         public static readonly Vector2 IndicatorSize = new(28f, 28f);
 
@@ -27,62 +25,27 @@ namespace Duckov_RecipeRecordedIndicator
         public static readonly Color RecordedIndicatorBgColor = new(0.2f, 0.8f, 0.2f, 1f);
         public static readonly Color RecordedIndicatorTextColor = new(1f, 1f, 1f, 1f);
 
-        private static readonly HashSet<ItemDisplay> IndicatedDisplays = [];
-
-        public static void AddIndicator(ItemDisplay itemDisplay)
-        {
-            if (itemDisplay == null || IndicatedDisplays.Contains(itemDisplay)) return;
-
-            try
-            {
-                if (itemDisplay.transform.Find(OtherIndicatorObjectName) != null)
-                {
-                    ModLogger.LogWarning(
-                        $"ItemDisplay {itemDisplay.name} has another Recorded Indicator present. Skipping addition of new indicator.");
-                    return;
-                }
-
-                if (itemDisplay.transform.Find(IndicatorObjectName) != null)
-                {
-                    IndicatedDisplays.Add(itemDisplay);
-                    return;
-                }
-
-                var success = CreateIndicator(itemDisplay);
-                if (!success)
-                {
-                    ModLogger.LogError($"Failed to create Recorded Indicator for ItemDisplay: {itemDisplay.name}");
-                    return;
-                }
-
-                IndicatedDisplays.Add(itemDisplay);
-                ModLogger.Log($"Added Recorded Indicator to ItemDisplay: {itemDisplay.name}");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.LogError($"Error Adding Recorded Indicator to ItemDisplay {itemDisplay.name}: {ex}");
-            }
-        }
-
-        public static void RemoveIndicator(ItemDisplay itemDisplay)
+        public static void AddOrUpdateIndicator(ItemDisplay itemDisplay, bool isRecorded)
         {
             if (itemDisplay == null) return;
 
-            try
-            {
-                var transform = itemDisplay.transform.Find(IndicatorObjectName);
-                if (transform != null)
-                {
-                    Object.Destroy(transform.gameObject);
-                    ModLogger.Log($"Removed Recorded Indicator from ItemDisplay: {itemDisplay.name}");
-                }
+            var indicatorObject = GetIndicator(itemDisplay);
+            if (indicatorObject == null) return;
 
-                IndicatedDisplays.Remove(itemDisplay);
-            }
-            catch (Exception ex)
-            {
-                ModLogger.LogError($"Error Removing Recorded Indicator from ItemDisplay {itemDisplay.name}: {ex}");
-            }
+            indicatorObject.SetActive(isRecorded);
+        }
+
+        private static GameObject? GetIndicator(ItemDisplay itemDisplay)
+        {
+            if (itemDisplay == null) return null;
+
+            var indicatorTransform = itemDisplay.transform.Find(IndicatorObjectName);
+            if (indicatorTransform != null) return indicatorTransform.gameObject;
+
+            if (!CreateIndicator(itemDisplay)) return null;
+
+            indicatorTransform = itemDisplay.transform.Find(IndicatorObjectName);
+            return indicatorTransform?.gameObject;
         }
 
         private static bool CreateIndicator(ItemDisplay itemDisplay)
@@ -111,15 +74,11 @@ namespace Duckov_RecipeRecordedIndicator
                 }
 
                 var textObject = CreateIndicator_Text(indicatorObject);
-                if (textObject == null)
-                {
-                    ModLogger.LogError("Failed to create text object");
-                    Object.Destroy(indicatorObject);
-                    return false;
-                }
+                if (textObject != null) return true;
 
-                ModLogger.Log("Successfully Created Recorded Indicator UI");
-                return true;
+                ModLogger.LogError("Failed to create text object");
+                Object.Destroy(indicatorObject);
+                return false;
             }
             catch (Exception ex)
             {
@@ -234,19 +193,6 @@ namespace Duckov_RecipeRecordedIndicator
             textMesh.alignment = TextAlignmentOptions.Center;
 
             return textObject;
-        }
-
-        public static void ClearAll()
-        {
-            try
-            {
-                IndicatedDisplays.Clear();
-                ModLogger.Log("Recorded Indicator Clear All");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.LogError($"Error Clearing Recorded Indicators: {ex}");
-            }
         }
     }
 }
