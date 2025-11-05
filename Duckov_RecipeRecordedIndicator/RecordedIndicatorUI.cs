@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Reflection;
+using Duckov.BlackMarkets.UI;
 using Duckov.UI;
+using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace Duckov_RecipeRecordedIndicator
@@ -25,40 +29,71 @@ namespace Duckov_RecipeRecordedIndicator
         public static readonly Color RecordedIndicatorBgColor = new(0.2f, 0.8f, 0.2f, 1f);
         public static readonly Color RecordedIndicatorTextColor = new(1f, 1f, 1f, 1f);
 
+        private static readonly FieldInfo ItemAmountDisplayIconField =
+            AccessTools.Field(typeof(ItemAmountDisplay), "icon");
+
         public static void AddOrUpdateIndicator(ItemDisplay itemDisplay, bool isRecorded)
         {
             if (itemDisplay == null) return;
 
-            var indicatorObject = GetIndicator(itemDisplay);
+            var indicatorObject = GetIndicator(itemDisplay.gameObject);
             if (indicatorObject == null) return;
 
             indicatorObject.SetActive(isRecorded);
         }
 
-        private static GameObject? GetIndicator(ItemDisplay itemDisplay)
+        public static void AddOrUpdateIndicator(DemandPanel_Entry entry, bool isRecorded)
         {
-            if (itemDisplay == null) return null;
+            var itemAmountDisplay = entry.GetComponentInChildren<ItemAmountDisplay>();
+            if (itemAmountDisplay == null) return;
 
-            var indicatorTransform = itemDisplay.transform.Find(IndicatorObjectName);
+            var targetGameObject = ItemAmountDisplayIconField.GetValue(itemAmountDisplay) as Image;
+            if (targetGameObject == null) return;
+
+            var indicatorObject = GetIndicator(targetGameObject.gameObject);
+            if (indicatorObject == null) return;
+
+            indicatorObject.SetActive(isRecorded);
+        }
+
+        public static void AddOrUpdateIndicator(SupplyPanel_Entry entry, bool isRecorded)
+        {
+            var itemAmountDisplay = entry.GetComponentInChildren<ItemAmountDisplay>();
+            if (itemAmountDisplay == null) return;
+
+            var targetGameObject = ItemAmountDisplayIconField.GetValue(itemAmountDisplay) as Image;
+            if (targetGameObject == null) return;
+
+            var indicatorObject = GetIndicator(targetGameObject.gameObject);
+            if (indicatorObject == null) return;
+
+            indicatorObject.SetActive(isRecorded);
+        }
+
+        private static GameObject? GetIndicator(GameObject targetGameObject)
+        {
+            if (targetGameObject == null) return null;
+
+            var indicatorTransform = targetGameObject.transform.Find(IndicatorObjectName);
             if (indicatorTransform != null) return indicatorTransform.gameObject;
 
-            if (!CreateIndicator(itemDisplay)) return null;
+            if (!CreateIndicator(targetGameObject)) return null;
 
-            indicatorTransform = itemDisplay.transform.Find(IndicatorObjectName);
+            indicatorTransform = targetGameObject.transform.Find(IndicatorObjectName);
             return indicatorTransform?.gameObject;
         }
 
-        private static bool CreateIndicator(ItemDisplay itemDisplay)
+        private static bool CreateIndicator(GameObject targetGameObject)
         {
             try
             {
-                if (itemDisplay == null)
+                if (targetGameObject == null)
                 {
                     ModLogger.LogError("ItemDisplay is null");
                     return false;
                 }
 
-                var indicatorObject = CreateIndicator_Main(itemDisplay);
+                var indicatorObject = CreateIndicator_Main(targetGameObject);
                 if (indicatorObject == null)
                 {
                     ModLogger.LogError("Failed to create main indicator object");
@@ -87,7 +122,7 @@ namespace Duckov_RecipeRecordedIndicator
 
             return false;
         }
-        
+
         private static void SetIndicatorPosition(GameObject indicatorObject, bool showOnLeft)
         {
             var rectTransform = indicatorObject.GetComponent<RectTransform>();
@@ -113,10 +148,10 @@ namespace Duckov_RecipeRecordedIndicator
             }
         }
 
-        private static GameObject? CreateIndicator_Main(ItemDisplay itemDisplay)
+        private static GameObject? CreateIndicator_Main(GameObject targetGameObject)
         {
             var indicatorObject = new GameObject(IndicatorObjectName);
-            indicatorObject.transform.SetParent(itemDisplay.transform, false);
+            indicatorObject.transform.SetParent(targetGameObject.transform, false);
             indicatorObject.transform.localScale = Vector3.one;
             var rectTransform = indicatorObject.AddComponent<RectTransform>();
             if (rectTransform == null)
